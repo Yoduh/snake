@@ -22,7 +22,7 @@ function App() {
   const directionRef = useRef(direction);
   const prevDirectionRef = useRef(direction);
   const snakeRef = useRef(snake);
-  let prevHeadPos = {};
+  let prevHeadPos;
 
   const resetGame = () => {
     setDirection('');
@@ -32,9 +32,35 @@ function App() {
     setGameOver(false);
   }
 
+  const handleKeyDown = (e) => {
+    if (e === undefined)
+      return;
+    prevHeadPos = snakeRef.current.head;
+    switch (e.keyCode) {
+      case 37:
+        if (prevDirectionRef.current !== 'right' || snakeRef.current.body.length === 0)
+          setDirection('left');
+        break;
+      case 38:
+        if (prevDirectionRef.current !== 'down' || snakeRef.current.body.length === 0)
+          setDirection('up');
+        break;
+      case 39:
+        if (prevDirectionRef.current !== 'left' || snakeRef.current.body.length === 0)
+          setDirection('right');
+        break;
+      case 40:
+        if (prevDirectionRef.current !== 'up' || snakeRef.current.body.length === 0)
+          setDirection('down');
+        break;
+      default:
+        break;
+    }
+  }
+
   useEffect(() => {
     document.addEventListener('keydown', (e) => handleKeyDown(e));
-  }, []);
+  }, [handleKeyDown]);
   useEffect(() => {
     directionRef.current = direction;
   }, [direction])
@@ -55,7 +81,7 @@ function App() {
     if (snake.head.row === food.row && snake.head.col === food.col) {
       newBody = [...snake.body, {row: snake.head.row, col: snake.head.col}];
       setFood(getRandomFood());
-      setScore(score + 10);
+      setScore(score => score + 10);
     } else {
       newBody = [...snake.body, {row: snake.head.row, col: snake.head.col}];
       newBody.shift();
@@ -97,32 +123,6 @@ function App() {
 
     return () => {clearTimeout(gameTick)}
   }, [snake]);
-
-  const handleKeyDown = (e) => {
-    if (e === undefined)
-      return;
-    prevHeadPos = snakeRef.current.head;
-    switch (e.keyCode) {
-      case 37:
-        if (prevDirectionRef.current !== 'right' || snakeRef.current.body.length === 0)
-          setDirection('left');
-        break;
-      case 38:
-        if (prevDirectionRef.current !== 'down' || snakeRef.current.body.length === 0)
-          setDirection('up');
-        break;
-      case 39:
-        if (prevDirectionRef.current !== 'left' || snakeRef.current.body.length === 0)
-          setDirection('right');
-        break;
-      case 40:
-        if (prevDirectionRef.current !== 'up' || snakeRef.current.body.length === 0)
-          setDirection('down');
-        break;
-    }
-  }
-
-  
 
   return (
     <div className="container justify-content-center text-center">
