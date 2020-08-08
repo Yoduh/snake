@@ -131,7 +131,7 @@ function App() {
   return (
     <div className="container justify-content-center text-center">
       <h1>SNAKE GAME</h1>
-      <p><em>press any arrow key to start</em></p>
+      <p><em>press any arrow key to start (right ctrl hotkey restarts)</em></p>
       <div className="row d-flex justify-content-center text-center">
         Score: {score}
       </div>
