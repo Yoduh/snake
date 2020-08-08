@@ -36,7 +36,11 @@ function App() {
     if (e === undefined)
       return;
     prevHeadPos = snakeRef.current.head;
+    console.log(e);
     switch (e.keyCode) {
+      case 17:
+        resetGame();
+        break;
       case 37:
         if (prevDirectionRef.current !== 'right' || snakeRef.current.body.length === 0)
           setDirection('left');
