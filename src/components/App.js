@@ -16,7 +16,8 @@ function App() {
   const [speed, setSpeed] = useState(200);
   const [score, setScore] = useState(0);
   const [snake, setSnake] = useState({head: {row: size / 2, col: size / 2}, body: []});
-  const [food, setFood] = useState(getRandomFood())
+  const [food, setFood] = useState(getRandomFood());
+  const [gameStart, setGameStart] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [direction, setDirection] = useState('');
   const directionRef = useRef(direction);
@@ -24,52 +25,61 @@ function App() {
   const snakeRef = useRef(snake);
   let prevHeadPos;
 
-  const resetGame = () => {
+  const resetGame = (size) => {
+    setGameStart(false);
     setDirection('');
-    setSnake({head: {row: Math.round(size / 2), col: Math.round(size / 2)}, body: []});
     setScore(0);
     setFood(getRandomFood());
+    setSnake({head: {row: Math.round(size / 2), col: Math.round(size / 2)}, body: []});
     setGameOver(false);
   }
 
-  const handleKeyDown = (e) => {
-    if (e === undefined)
-      return;
-    prevHeadPos = snakeRef.current.head;
-    console.log(e);
-    switch (e.keyCode) {
-      case 17:
-        resetGame();
-        break;
-      case 37:
-        if (prevDirectionRef.current !== 'right' || snakeRef.current.body.length === 0)
-          setDirection('left');
-        break;
-      case 38:
-        if (prevDirectionRef.current !== 'down' || snakeRef.current.body.length === 0)
-          setDirection('up');
-        break;
-      case 39:
-        if (prevDirectionRef.current !== 'left' || snakeRef.current.body.length === 0)
-          setDirection('right');
-        break;
-      case 40:
-        if (prevDirectionRef.current !== 'up' || snakeRef.current.body.length === 0)
-          setDirection('down');
-        break;
-      default:
-        break;
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e === undefined)
+        return;
+      setGameStart(true);
+      prevHeadPos = snakeRef.current.head;
+      switch (e.keyCode) {
+        case 17:
+          resetGame(size);
+          break;
+        case 37:
+          if (prevDirectionRef.current !== 'right' || snakeRef.current.body.length === 0)
+            setDirection('left');
+          break;
+        case 38:
+          if (prevDirectionRef.current !== 'down' || snakeRef.current.body.length === 0)
+            setDirection('up');
+          break;
+        case 39:
+          if (prevDirectionRef.current !== 'left' || snakeRef.current.body.length === 0)
+            setDirection('right');
+          break;
+        case 40:
+          if (prevDirectionRef.current !== 'up' || snakeRef.current.body.length === 0)
+            setDirection('down');
+          break;
+        default:
+          break;
+      }
     }
-  }
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => { window.removeEventListener('keydown', handleKeyDown); }
+  }, [size]);
 
   useEffect(() => {
-    document.addEventListener('keydown', (e) => handleKeyDown(e));
-  }, [handleKeyDown]);
+    resetGame(size);
+  }, [size])
+
   useEffect(() => {
     directionRef.current = direction;
   }, [direction])
 
   useEffect(() => {
+    if (!gameStart)
+      return;
     let gameTick = null;
     // out of bounds death
     if (snake.head.row <= 0 || snake.head.row > size || snake.head.col <= 0 || snake.head.col > size) {
@@ -126,7 +136,7 @@ function App() {
     }, speed);
 
     return () => {clearTimeout(gameTick)}
-  }, [snake]);
+  }, [snake, gameStart]);
 
   return (
     <div className="container justify-content-center text-center">
@@ -140,7 +150,7 @@ function App() {
         <Board size={size} snake={snake} food={food}/>
       </div>
       <div className="row d-flex justify-content-center mt-3">
-        <button className="btn btn-primary reset mr-3" onClick={() => resetGame()}>Reset</button>
+        <button className="btn btn-primary reset mr-3" onClick={() => resetGame(size)}>Reset</button>
         <Dropdown className="mr-3">
           <Dropdown.Toggle variant="success" id="dropdown-basic">
             Size
